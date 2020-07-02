@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import HttpResponse
+from django.views.generic import View
+from .tasks import celery_task
 
-# Create your views here.
+
+class MyView(View):
+
+    def get(self, request):
+        result = celery_task(1)
+        return HttpResponse(result)
