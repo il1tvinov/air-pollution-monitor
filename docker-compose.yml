@@ -17,11 +17,20 @@ services:
       - 5672:5672
       - 15672:15672
 
-  celery:
+  worker:
     image: *aqi-monitor-core
-    container_name: celery
+    container_name: worker
     command: celery -A aqi_monitor worker --max-memory-per-child=600000 --concurrency=10 -P threads -l debug
     links:
       - rabbitmq
+    depends_on:
+      - "rabbitmq"
+
+  scheduler:
+    image: *aqi-monitor-core
+    container_name: scheduler
+    command: celery -A aqi_monitor beat -l debug
+    links:
+      - worker
     depends_on:
       - "rabbitmq"
