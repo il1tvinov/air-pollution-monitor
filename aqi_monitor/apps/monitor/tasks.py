@@ -18,7 +18,7 @@ app.conf.beat_schedule = \
 
 @app.task
 def get_aqi():
-    region = "saratov"
+    region = "moscow"
     response = requests.get(
         f"https://api.waqi.info/feed/{region}/?token=7162b8553552c91543ed0ae44c44e59b3724a08e")
     data = json.loads(response.text)["data"]

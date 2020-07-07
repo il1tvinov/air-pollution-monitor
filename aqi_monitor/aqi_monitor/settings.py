@@ -120,8 +120,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-# CELERY STUFF
 CELERY_BROKER_URL = 'amqp://@rabbitmq:5672'
 CELERY_RESULT_BACKEND = 'amqp://@rabbitmq:5672'
 CELERY_ACCEPT_CONTENT = ['application/json']

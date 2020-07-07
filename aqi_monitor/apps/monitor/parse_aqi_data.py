@@ -1,5 +1,5 @@
 from pytz import utc
-from datetime import datetime as DT, timedelta
+from datetime import datetime
 
 
 def message_about_air_quality(aqi: int) -> str:
@@ -9,10 +9,10 @@ def message_about_air_quality(aqi: int) -> str:
         aqi: Air quality index
 
     Returns:
-        quality message as a string
+        Message about air quality
     """
     if aqi < 51:
-        return "Good air"
+        return ""
     elif aqi < 101:
         return "Air quality is acceptable"
     elif aqi < 151:
@@ -25,23 +25,18 @@ def message_about_air_quality(aqi: int) -> str:
         return "Health alert: everyone may experience more serious health effects"
 
 
-def time_convert_to_utc(time: dict) -> str:
+def time_convert_to_utc(time: dict) -> datetime:
     """Converts time to utc
-
-    Combine the date and local time string with timezone,
-    convert the string to a datetime object
-    and perform the conversion to utc
-    using the datetime and pytz module.
 
     Args:
          time: Date, time, and timezone in dict format
 
     Returns:
-         String with date and time in utc
+         Datetime in utc
     """
     time_with_tz = time["s"] + " " + time["tz"][0:3] + time["tz"][4:]
-    date = DT.strptime(time_with_tz, "%Y-%m-%d %H:%M:%S %z")
-    return date.astimezone(utc).strftime("%Y-%m-%d %H:%M:%S")
+    date = datetime.strptime(time_with_tz, "%Y-%m-%d %H:%M:%S %z")
+    return date.astimezone(utc)
 
 
 def parse_iaqi(iaqi: dict) -> dict:
