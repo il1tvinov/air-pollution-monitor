@@ -3,11 +3,7 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /app
 WORKDIR /app
 # install psycopg2 dependencies
-RUN apt-get update
-RUN apt-get install -y gcc
-RUN apt-get install -y python3-dev
-RUN apt-get install -y musl-dev
-RUN apt-get install -y postgresql-9.3
+RUN apt-get update && apt-get install -y gcc python3-dev musl-dev apt-get install -y postgresql-9.3
 
 ADD requirements.txt /app/
 RUN pip install -r requirements.txt
