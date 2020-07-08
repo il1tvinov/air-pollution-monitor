@@ -11,7 +11,7 @@ from . import parse_aqi_data
 app.conf.beat_schedule = \
     {"send_message": {
         "task": "apps.monitor.tasks.get_aqi",
-        "schedule": crontab(minute="*/1"),
+        "schedule": crontab(minute="*/15"),
         "args": (),
     }}
 
