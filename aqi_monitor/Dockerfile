@@ -6,7 +6,5 @@ COPY ./requirements.txt /app/
 # install psycopg2 dependencies
 RUN apt-get update
 RUN apt-get install -y gcc python3-dev musl-dev postgresql-9.3
-
-ADD requirements.txt /app/
 RUN pip install -r requirements.txt
 COPY . /app/
