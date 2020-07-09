@@ -2,13 +2,38 @@ version: '3.7'
 
 services:
   aqi-monitor-core:
+    image: &aqi-monitor-core aqi-monitor-core
+    container_name: aqi-monitor-core
     build:
       context: ./aqi_monitor
       dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
+
+  rabbitmq:
+    image: rabbitmq:3.8.3
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  worker:
+    image: *aqi-monitor-core
+    container_name: worker
+    command: celery -A aqi_monitor worker --max-memory-per-child=600000 --concurrency=10 -P threads -l debug
+    links:
+      - rabbitmq
     depends_on:
+      - "rabbitmq"
+
+  scheduler:
+    image: *aqi-monitor-core
+    container_name: scheduler
+    command: celery -A aqi_monitor beat -l debug
+    links:
+      - worker
+    depends_on:
+      - "rabbitmq"
       - db
   db:
     ports:
