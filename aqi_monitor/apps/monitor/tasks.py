@@ -9,18 +9,9 @@ from aqi_monitor.celery import app
 from . import parse_aqi_data
 
 
-app.conf.beat_schedule = {
-    "send_message": {
-        "task": "apps.monitor.tasks.extract_aqi",
-        "schedule": crontab(minute="*/1"),
-        "args": (),
-    }
-}
-
-
 @app.task
 def extract_aqi():
-    regions_list = ["moscow", "paris", "newyork", "saratov", "berlin", "tokyo"]
+    regions_list = ["moscow", "paris", "new%20york", "saratov", "berlin", "tokyo"]
     tasks_list = [send_request.s(i) for i in regions_list]
     tasks_list = group(*tasks_list).apply_async()
 
