@@ -49,7 +49,7 @@ def parse_iaqi(iaqi: dict) -> dict:
          A dictionary with the required air parameters
     """
     required_attributes = ["so2", "o3", "co", "pm10", "pm25", "no2"]
-    aqi = {attr: iaqi[attr]["v"] for attr in required_attributes}
+    aqi = {attr: iaqi.get(attr).get("v", 0) for attr in required_attributes}
     return aqi
 
 
