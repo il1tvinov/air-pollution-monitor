@@ -62,10 +62,12 @@ def parse_aqi_data(data: dict) -> dict:
     Returns:
          A dictionary with the required parameters for the database
     """
-    aqi = parse_iaqi(data["iaqi"])
-    result = {"id_region": data["idx"],
-              "aqi": data["aqi"],
-              "message": message_about_air_quality(data["aqi"]),
-              "time": time_convert_to_utc(data["time"])}
+    aqi = parse_iaqi(data.get("iaqi"))
+    result = {
+        "id_region": data.get("idx"),
+        "aqi": data.get("aqi"),
+        "message": message_about_air_quality(data.get("aqi")),
+        "time": time_convert_to_utc(data.get("time")),
+    }
     result.update(aqi)
     return result
