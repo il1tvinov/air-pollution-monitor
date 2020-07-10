@@ -39,20 +39,6 @@ def time_convert_to_utc(time: dict) -> datetime:
     return date.astimezone(utc)
 
 
-def parse_iaqi(iaqi: dict) -> dict:
-    """Retrieves the values of the required air parameters
-
-    Args:
-         iaqi: A dictionary with all parameters of air
-
-    Returns:
-         A dictionary with the required air parameters
-    """
-    required_attributes = ["so2", "o3", "co", "pm10", "pm25", "no2"]
-    aqi = {attr: iaqi.get(attr).get("v", 0) for attr in required_attributes}
-    return aqi
-
-
 def parse_aqi_data(data: dict) -> dict:
     """Returns data to the type required for writing to the database
 
@@ -62,7 +48,9 @@ def parse_aqi_data(data: dict) -> dict:
     Returns:
          A dictionary with the required parameters for the database
     """
-    aqi = parse_iaqi(data.get("iaqi"))
+    iaqi = data.get("iaqi")
+    required_attributes = ["so2", "o3", "co", "pm10", "pm25", "no2"]
+    aqi = {attr: iaqi.get(attr).get("v", 0) for attr in required_attributes}
     result = {
         "id_region": data.get("idx"),
         "aqi": data.get("aqi"),
