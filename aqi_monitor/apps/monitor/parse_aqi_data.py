@@ -12,7 +12,7 @@ def message_about_air_quality(aqi: int) -> str:
         Message about air quality
     """
     if aqi < 51:
-        return ""
+        return "Good air"
     elif aqi < 101:
         return "Air quality is acceptable"
     elif aqi < 151:
@@ -39,12 +39,12 @@ def time_convert_to_utc(time: dict) -> datetime:
     return date.astimezone(utc)
 
 
-def parse_aqi_data(data: dict) -> dict:
+def parse_aqi_data(data: dict, city: str) -> dict:
     """Returns data to the type required for writing to the database
 
     Args:
-         data: A dictionary with all measurement results
-
+         data: A dictionary with all measurement results and city
+         in format string
     Returns:
          A dictionary with the required parameters for the database
     """
@@ -52,7 +52,7 @@ def parse_aqi_data(data: dict) -> dict:
     required_attributes = ["so2", "o3", "co", "pm10", "pm25", "no2"]
     aqi = {attr: iaqi.get(attr).get("v", 0) for attr in required_attributes}
     result = {
-        "id_region": data.get("idx"),
+        "city": city,
         "aqi": data.get("aqi"),
         "message": message_about_air_quality(data.get("aqi")),
         "time": time_convert_to_utc(data.get("time")),

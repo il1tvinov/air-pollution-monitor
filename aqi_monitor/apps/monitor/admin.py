@@ -1,3 +1,6 @@
 from django.contrib import admin
+from apps.monitor.models import *
 
-# Register your models here.
+admin.site.register(User)
+admin.site.register(Region)
+admin.site.register(AQI)
