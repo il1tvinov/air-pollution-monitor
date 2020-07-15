@@ -10,7 +10,7 @@ def save_region_in_db(country: str, city: str):
 
 def save_aqi_in_db(aqi_data: dict):
     aqi = models.AQI()
-    region = models.Region.objects.filter(aqi_data["city"])[0]
+    region = list(models.Region.objects.filter(city=aqi_data["city"]))[0]
     aqi.region_ID = region
     aqi.PM25_index = aqi_data["pm25"]
     aqi.PM10_index = aqi_data["pm10"]
@@ -20,12 +20,11 @@ def save_aqi_in_db(aqi_data: dict):
     aqi.Ozone_index = aqi_data["o3"]
     aqi.final_index = aqi_data["aqi"]
     aqi.time = aqi_data["time"]
-    aqi.message = aqi_data["message"]
     aqi.save()
 
 
 def save_user_in_db(email: str, name_region: str, name: str, surname: str):
-    region = models.Region.objects.filter(city=name_region)[0]
+    region = list(models.Region.objects.filter(city=name_region))[0]
     user = models.User(email=email, region_ID=region, name=name, surname=surname)
     user.save()
 
@@ -39,12 +38,12 @@ def get_email(name_region: str) -> list:
          A list of emails
     """
     region = list(models.Region.objects.filter(city=name_region))[0]
-    users = models.User.objects.filter(region)
+    users = models.User.objects.filter(region_ID=region)
     all_email = [user.email for user in users]
     return all_email
 
 
-def get_latest_aqi(name_region: str) -> models.AQI:
+def __get_latest_aqi(name_region: str) -> models.AQI:
     """Returns the last measurement in the region
 
     Args:
@@ -52,7 +51,7 @@ def get_latest_aqi(name_region: str) -> models.AQI:
     Returns:
          The last record of the measurement
     """
-    region = models.Region.objects.filter(city=name_region)[0]
+    region = list(models.Region.objects.filter(city=name_region))[0]
     aqi = list(models.AQI.objects.filter(region_ID=region))
     if aqi:
         latest_aqi = reduce(lambda x, y: x if x.time > y.time else y, aqi)
@@ -68,23 +67,9 @@ def get_aqi_index(name_region: str) -> int:
     Returns:
          The last aqi index value
     """
-    aqi = get_latest_aqi(name_region)
+    aqi = __get_latest_aqi(name_region)
     if aqi:
         return aqi.final_index
-    return None
-
-
-def get_aqi_message(name_region: str) -> str:
-    """Returns a message about the air quality in the last measurement
-
-    Args:
-         name_region: the city where the measurement was made
-    Returns:
-         The message about air quality
-    """
-    aqi = get_latest_aqi(name_region)
-    if aqi:
-        return aqi.message
     return None
 
 

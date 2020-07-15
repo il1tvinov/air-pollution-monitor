@@ -1,6 +1,4 @@
 from django.db import models
-from django.utils import timezone
-import datetime
 
 
 class Region(models.Model):
@@ -27,15 +25,14 @@ class AQI(models.Model):
     region_ID = models.ForeignKey(
         Region, on_delete=models.PROTECT, related_name="aqi_region_ID", max_length=30
     )
-    PM25_index = models.IntegerField()
-    PM10_index = models.IntegerField()
-    NO2_index = models.IntegerField()
-    CO_index = models.IntegerField()
-    SO2_index = models.IntegerField()
-    Ozone_index = models.IntegerField()
+    PM25_index = models.IntegerField(null=True)
+    PM10_index = models.IntegerField(null=True)
+    NO2_index = models.IntegerField(null=True)
+    CO_index = models.IntegerField(null=True)
+    SO2_index = models.IntegerField(null=True)
+    Ozone_index = models.IntegerField(null=True)
     final_index = models.IntegerField()
     time = models.DateTimeField()
-    message = models.CharField(max_length=200)
 
     def __str__(self):
         return self.region_ID.city + " " + self.time.strftime("%Y-%m-%d %H:%M:%S")

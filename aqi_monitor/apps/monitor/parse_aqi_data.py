@@ -2,6 +2,28 @@ from pytz import utc
 from datetime import datetime
 
 
+def validator(all_data: dict) -> bool:
+    """ The function reports whether the service provided correct data
+        for processing or not
+
+    Args:
+        all_data: data from the AQI service in the form of a dictionary
+
+    Returns:
+        A response in the form of a Boolean value
+    """
+    if all_data.get("status") == "error":
+        return False
+    data = all_data.get("data")
+    if (
+        not isinstance(data.get("aqi"), int)
+        or data.get("time").get("s") == ""
+        or data.get("time").get("tz") == ""
+    ):
+        return False
+    return True
+
+
 def message_about_air_quality(aqi: int) -> str:
     """Determines the air quality and returns the corresponding message
 
@@ -50,11 +72,13 @@ def parse_aqi_data(data: dict, city: str) -> dict:
     """
     iaqi = data.get("iaqi")
     required_attributes = ["so2", "o3", "co", "pm10", "pm25", "no2"]
-    aqi = {attr: iaqi.get(attr).get("v", 0) for attr in required_attributes}
+    aqi = {
+        attr: iaqi.get(attr, None).get("v", 0) if iaqi.get(attr) else None
+        for attr in required_attributes
+    }
     result = {
         "city": city,
         "aqi": data.get("aqi"),
-        "message": message_about_air_quality(data.get("aqi")),
         "time": time_convert_to_utc(data.get("time")),
     }
     result.update(aqi)
