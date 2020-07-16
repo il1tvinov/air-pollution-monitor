@@ -2,29 +2,7 @@ from pytz import utc
 from datetime import datetime
 
 
-def validator(all_data: dict) -> bool:
-    """ The function reports whether the service provided correct data
-        for processing or not
-
-    Args:
-        all_data: data from the AQI service in the form of a dictionary
-
-    Returns:
-        A response in the form of a Boolean value
-    """
-    if all_data.get("status") == "error":
-        return False
-    data = all_data.get("data")
-    if (
-        not isinstance(data.get("aqi"), int)
-        or data.get("time").get("s") == ""
-        or data.get("time").get("tz") == ""
-    ):
-        return False
-    return True
-
-
-def message_about_air_quality(aqi: int) -> str:
+def generate_message(aqi: int) -> str:
     """Determines the air quality and returns the corresponding message
 
     Args:
@@ -61,12 +39,12 @@ def time_convert_to_utc(time: dict) -> datetime:
     return date.astimezone(utc)
 
 
-def parse_aqi_data(data: dict, city: str) -> dict:
+def parse_aqi_data(data: dict, city: str, time_req: datetime) -> dict:
     """Returns data to the type required for writing to the database
 
     Args:
-         data: A dictionary with all measurement results and city
-         in format string
+         data: A dictionary with all measurement results
+         city: city in format string
     Returns:
          A dictionary with the required parameters for the database
     """
@@ -77,6 +55,7 @@ def parse_aqi_data(data: dict, city: str) -> dict:
         for attr in required_attributes
     }
     result = {
+        "time_req": time_req,
         "city": city,
         "aqi": data.get("aqi"),
         "time": time_convert_to_utc(data.get("time")),
