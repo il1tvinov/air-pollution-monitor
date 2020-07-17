@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-from pathlib import *
 import os
 
 
@@ -82,7 +81,7 @@ DATABASES = {
         "NAME": "aqi_index",
         "USER": "user",
         "PASSWORD": "password",
-        "HOST": "localhost",
+        "HOST": "db",
         "PORT": "5432",
     }
 }
