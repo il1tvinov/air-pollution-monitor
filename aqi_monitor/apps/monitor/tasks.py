@@ -8,7 +8,7 @@ from celery.schedules import crontab
 from celery import group
 from aqi_monitor.celery import app
 from . import parser
-from utils import db_connector, validators, fillDB
+from utils import db_connector, validators
 import smtplib, ssl
 
 SENDER = "aqi.pollution.monitor@gmail.com"
