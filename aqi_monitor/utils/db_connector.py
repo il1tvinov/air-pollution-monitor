@@ -1,5 +1,3 @@
-from functools import reduce
-
 from apps.monitor.models import AQI, Region, User
 
 
