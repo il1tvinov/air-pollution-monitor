@@ -13,8 +13,8 @@ def get_email(name_region: str) -> list:
     """
     region_ID = list(Region.objects.filter(city=name_region))[0]
     users = User.objects.filter(region_ID=region_ID)
-    all_email = [user.email for user in users]
-    return all_email
+    emails = [user.email for user in users]
+    return emails
 
 
 def get_aqi_index(name_region: str) -> int:
@@ -31,12 +31,12 @@ def get_aqi_index(name_region: str) -> int:
     return None
 
 
-def get_all_regions() -> list:
+def get_cities() -> list:
     """Returns a list of all cities in the database
 
     Returns:
         List of cities as a list of strings
     """
-    all_regions = Region.objects.all()
-    all_name_region = [region.city for region in all_regions]
-    return all_name_region
+    regions = Region.objects.all()
+    cities = [region.city for region in regions]
+    return cities

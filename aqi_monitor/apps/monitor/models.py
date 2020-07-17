@@ -33,7 +33,7 @@ class User(models.Model):
 
 
 class AQI(models.Model):
-    Time_of_request = models.DateTimeField()
+    Timestamp = models.DateTimeField()
     region_ID = models.ForeignKey(
         Region, on_delete=models.PROTECT, related_name="aqi_region_ID", max_length=30
     )
@@ -48,7 +48,7 @@ class AQI(models.Model):
 
     def save(self, aqi_data):
         region_ID = list(Region.objects.filter(city=aqi_data["city"]))[0]
-        self.Time_of_request = aqi_data["time_req"]
+        self.Timestamp = aqi_data["timestamp"]
         self.region_ID = region_ID
         self.PM25_index = aqi_data["pm25"]
         self.PM10_index = aqi_data["pm10"]
@@ -61,11 +61,7 @@ class AQI(models.Model):
         super(AQI, self).save()
 
     def __str__(self):
-        return (
-            self.region_ID.city
-            + " "
-            + self.Time_of_request.strftime("%Y-%m-%d %H:%M:%S")
-        )
+        return self.region_ID.city + " " + self.Timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
     def get_latest_aqi(name_region: str) -> AQI:
@@ -76,9 +72,14 @@ class AQI(models.Model):
         Returns:
              The last record of the measurement
         """
-        region = list(Region.objects.filter(city=name_region))[0]
-        aqi = list(AQI.objects.filter(region_ID=region))
+        region_ID = list(Region.objects.filter(city=name_region))[0]
+        aqi = list(AQI.objects.filter(region_ID=region_ID))
         if aqi:
-            latest_aqi = reduce(lambda x, y: x if x.time > y.time else y, aqi)
+            latest_aqi = reduce(
+                lambda previous_aqi, current_aqi: previous_aqi
+                if previous_aqi.Timestamp > current_aqi.Timestamp
+                else current_aqi,
+                aqi,
+            )
             return latest_aqi
         return None
