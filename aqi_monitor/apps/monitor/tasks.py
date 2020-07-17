@@ -2,15 +2,17 @@ from __future__ import absolute_import, unicode_literals
 
 import requests
 import json
-from datetime import time
+from datetime import time, datetime
 
 from celery.schedules import crontab
 from celery import group
 from aqi_monitor.celery import app
-from . import parse_aqi_data
+from . import parser
+from utils import db_connector, validators, fillDB
 import smtplib, ssl
 
 SENDER = "aqi.pollution.monitor@gmail.com"
+PASSWORD = "byltrc54321"
 
 app.conf.beat_schedule = {
     "send_message": {
@@ -48,8 +50,9 @@ def level(aqi):
 
 @app.task
 def extract_aqi():
-    regions_list = ["saratov", "tokyo"]
-    tasks_list = [send_request.s(i) for i in regions_list]
+    fillDB.fill()
+    regions_list = db_connector.get_cities()
+    tasks_list = [send_request.s(region) for region in regions_list]
     tasks_list = group(*tasks_list).apply_async()
 
 
@@ -62,27 +65,33 @@ def send_request(region):
     data = json.loads(response.text)["data"]
     """if validator(data):
         aqi_data_result = parse_aqi_data.parse_aqi_data(data)"""
-    aqi_data_result = parse_aqi_data.parse_aqi_data(data)
-    send_message(region)
-    # save aqi_data_result
+    aqi_data_result = parser.parse_aqi_data(data)
+    if validators.check_data(aqi_data_result) and validators.check_station(
+        aqi_data_result
+    ):
+        send_message(region, aqi_data_result["aqi"])
 
 
 @app.task
-def send_message(region):
-    last_aqi = 150
-    now_aqi = 10
-    message = "Just checking"
-    if abs(level(last_aqi) - level(now_aqi)) >= 2:
+def send_message(region, current_aqi):
+    message = parser.generate_message(current_aqi)
+    previous_aqi = db_connector.get_latest_aqi(region)
+    email_list = db_connector.get_email(region)
+    if (
+        previous_aqi is None
+        or abs(level(previous_aqi) - level(current_aqi)) >= 2
+        or ((datetime.now()).hour == 8)
+        and (datetime.now()).minute <= 15
+    ):
         context = ssl.create_default_context()
         try:
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.ehlo()  # Can be omitted
             server.starttls(context=context)  # Secure the connection
             server.ehlo()  # Can be omitted
-            server.login(SENDER, "byltrc54321")
-            email_list = ["suhova1313@gmail.com", "rusyaev@mail.ru"]
-            for i in email_list:
-                server.sendmail(SENDER, i, message)
+            server.login(SENDER, PASSWORD)
+            for email in email_list:
+                server.sendmail(SENDER, email, message)
         except Exception as e:
             # Print any error messages to stdout
             print(e)

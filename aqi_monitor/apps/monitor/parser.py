@@ -2,17 +2,15 @@ from pytz import utc
 from datetime import datetime
 
 
-def message_about_air_quality(aqi: int) -> str:
+def generate_message(aqi: int) -> str:
     """Determines the air quality and returns the corresponding message
-
     Args:
         aqi: Air quality index
-
     Returns:
         Message about air quality
     """
     if aqi < 51:
-        return ""
+        return "Good air"
     elif aqi < 101:
         return "Air quality is acceptable"
     elif aqi < 151:
@@ -27,10 +25,8 @@ def message_about_air_quality(aqi: int) -> str:
 
 def time_convert_to_utc(time: dict) -> datetime:
     """Converts time to utc
-
     Args:
          time: Date, time, and timezone in dict format
-
     Returns:
          Datetime in utc
     """
@@ -39,22 +35,24 @@ def time_convert_to_utc(time: dict) -> datetime:
     return date.astimezone(utc)
 
 
-def parse_aqi_data(data: dict) -> dict:
+def parse_aqi_data(data: dict, city: str, time_req: datetime) -> dict:
     """Returns data to the type required for writing to the database
-
     Args:
          data: A dictionary with all measurement results
-
+         city: city in format string
     Returns:
          A dictionary with the required parameters for the database
     """
     iaqi = data.get("iaqi")
     required_attributes = ["so2", "o3", "co", "pm10", "pm25", "no2"]
-    aqi = {attr: iaqi.get(attr).get("v", 0) for attr in required_attributes}
+    aqi = {
+        attr: iaqi.get(attr, None).get("v", 0) if iaqi.get(attr) else None
+        for attr in required_attributes
+    }
     result = {
-        "id_region": data.get("idx"),
+        "time_req": time_req,
+        "city": city,
         "aqi": data.get("aqi"),
-        "message": message_about_air_quality(data.get("aqi")),
         "time": time_convert_to_utc(data.get("time")),
     }
     result.update(aqi)
