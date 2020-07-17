@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-
+from apps.monitor.models import *
 import requests
 import json
 from datetime import time, datetime
@@ -17,7 +17,7 @@ PASSWORD = "byltrc54321"
 app.conf.beat_schedule = {
     "send_message": {
         "task": "apps.monitor.tasks.extract_aqi",
-        "schedule": crontab(minute="*/15"),
+        "schedule": crontab(minute="*/1"),
         "args": (),
     }
 }
@@ -50,7 +50,6 @@ def level(aqi):
 
 @app.task
 def extract_aqi():
-    fillDB.fill()
     regions_list = db_connector.get_cities()
     tasks_list = [send_request.s(region) for region in regions_list]
     tasks_list = group(*tasks_list).apply_async()
@@ -70,6 +69,8 @@ def send_request(region):
         aqi_data_result
     ):
         send_message(region, aqi_data_result["aqi"])
+    new_aqi = AQI()
+    new_aqi.save(aqi_data_result)
 
 
 @app.task
