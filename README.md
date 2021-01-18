@@ -1,2 +1,2 @@
-# air-pollution-monitor
-Air pollution monitoring service
+# Air pollution monitoring service
+Part of engineering internship program
