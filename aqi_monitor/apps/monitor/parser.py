@@ -4,10 +4,8 @@ from datetime import datetime
 
 def generate_message(aqi: int) -> str:
     """Determines the air quality and returns the corresponding message
-
     Args:
         aqi: Air quality index
-
     Returns:
         Message about air quality
     """
@@ -27,10 +25,8 @@ def generate_message(aqi: int) -> str:
 
 def time_convert_to_utc(time: dict) -> datetime:
     """Converts time to utc
-
     Args:
          time: Date, time, and timezone in dict format
-
     Returns:
          Datetime in utc
     """
@@ -41,7 +37,6 @@ def time_convert_to_utc(time: dict) -> datetime:
 
 def parse_aqi_data(data: dict, city: str, time_req: datetime) -> dict:
     """Returns data to the type required for writing to the database
-
     Args:
          data: A dictionary with all measurement results
          city: city in format string
